@@ -57,5 +57,5 @@ ENTRYPOINT ["/root/docker-entrypoint.sh"]
 EXPOSE 8080
 EXPOSE 8003
 
-RUN apt-get install -y curl
+RUN apt-get install -y curl faketime
 

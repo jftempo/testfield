@@ -132,10 +132,17 @@ fi
 # we have to create the directories for the input/output files (features & dumps)
 mkdir output || true
 
-/etc/init.d/postgresql start
+# we use faketime if it's possible
+PREFIX=
+if which ls >/dev/null;
+then
+    PREFIX="faketime 2016-05-17"
+fi
+
+su postgres -c "$PREFIX /usr/lib/postgresql/8.4/bin/postgres -D /var/lib/postgresql/8.4/main -c config_file=/etc/postgresql/8.4/main/postgresql.conf" &
 cd /root/testfield
 
-./runtests_server.sh $PARAMS
+$PREFIX ./runtests_server.sh $PARAMS
 
 if [[ -e $TO_PATH ]]
 then
