@@ -143,7 +143,6 @@ upgrade_server()
     done
 }
 
-
 run_unifield()
 {
     # we print the commands to launch the components in a separate window in order to debug.
@@ -231,6 +230,48 @@ export DATABASES=$DATABASES
 ./generate_credentials.sh $FIRST_DATABASE $DBPREFIX
 fetch_source_code;
 
+# we have to setup a database if required
+LAUNCH_DB=
+if [[ ${DBPATH} && ${FORCED_DATE} ]];
+then
+    DATADIR=$SERVER_TMPDIR/data-$$
+    RUNDIR=$SERVER_TMPDIR/run-$$
+    DBADDR=localhost
+
+    mkdir $DATADIR $RUNDIR
+
+    $DBPATH/initdb --username=$USER $DATADIR
+
+    echo "port = $DBPORT" >> $DATADIR/postgresql.conf
+    echo "unix_socket_directory = '$RUNDIR'" >> $DATADIR/postgresql.conf
+
+
+    RUN_IN_TMUX=
+
+    if [[ ${LAUNCH_DB} ]]
+    then
+        echo "Run the database: $LAUNCH_DB"
+
+        RUN_IN_TMUX="
+        tmux new-window -n postgres \"
+        $LAUNCH_DB
+        \";
+        "
+    fi
+
+    LAUNCH_DB=$DBPATH/postgres -D $DATADIR
+    tmux new -d -s PostgreSQL_$$ "Xvfb :$$"
+    export DISPLAY=:$$
+    psql -h $DBADDR -p $DBPORT postgres -c "CREATE USER $DBUSERNAME WITH CREATEDB PASSWORD '$DBPASSWORD'"
+
+
+
+
+
+else
+    FORCED_DATE=
+fi
+
 if [[ $ONLY_SETUP == "no" ]]
 then
     python restore.py --reset-versions $ENVNAME
@@ -264,5 +305,10 @@ run_unifield;
 if [[ -z "$DISPLAY_BEFORE" ]];
 then
     tmux kill-session -t X_$$
+fi
+
+if [[ "$DATADIR $RUNDIR" ]];
+then
+    rm -rf $DATADIR $RUNDIR
 fi
 
