@@ -130,7 +130,7 @@ def connect_to_db():
         # caps["marionette"] = True
         # world.browser = webdriver.Firefox(firefox_profile=profile, capabilities=caps)
         
-        world.browser = webdriver.Firefox(firefox_profile=profile)
+        world.browser = webdriver.Firefox(firefox_profile=profile, timeout=1200)
 
         
     elif os.environ['BROWSER'] == "chrome":
