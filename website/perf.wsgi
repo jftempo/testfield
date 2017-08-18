@@ -3,7 +3,7 @@ import os
 
 os.environ['MPLCONFIGDIR'] = "/tmp"
 
-path = os.path.expanduser("~/.myenv/bin/activate_this.py")
+path = "~/.myenv/bin/activate_this.py"
 if os.path.exists(path):
     execfile(activate_env, dict(__file__=path))
 
