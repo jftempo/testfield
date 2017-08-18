@@ -288,13 +288,20 @@ def debug_scenarios(feature):
 
 @after.all
 def debug_scenarios(total):
+    failed = False
     for scenario_result in total.scenario_results:
         scenario = scenario_result.scenario
         if scenario_result.passed:
             print scenario.name, ": OK"
         else:
+            failed = True
             print scenario.name, ": FAILED"
             print "  steps:", str(scenario_result.steps_failed)
+
+    if failed:
+        for x in sorted(world.SCENARIO_VARIABLE.keys()):
+            if x not in ['ID', 'IDFILE', 'FILES']:
+                print 'I save value "%s" in "%s"' % (world.SCENARIO_VARIABLE[x], x)
 
 #}%}
 
@@ -1021,6 +1028,28 @@ def click_on_button_and_open(step, button):
     msg = "Cannot find button %s" % button
 
     click_on(world, lambda : get_element_from_text(world.browser, tag_name=["button", "a"], text=button, wait=msg), msg)
+
+    wait_until_not_loading(world.browser, wait=False)
+
+    world.browser.switch_to.default_content()
+    world.browser.switch_to_frame(get_element(world.browser, position=world.nbframes, tag_name="iframe", wait="I don't find the new window"))
+    world.nbframes += 1
+    
+    wait_until_no_ajax(world)
+
+@step('I click on button_id "([^"]*)" and open the window$')
+@handle_delayed_step
+@output.add_printscreen
+def click_on_button_id_and_open(step, button):
+    refresh_window(world)
+
+    wait_until_not_loading(world.browser, wait=False)
+    wait_until_no_ajax(world)
+    msg = "Cannot find button id %s" % button
+
+    elem = world.browser.find_element_by_id(button)
+
+    click_on(world, lambda: elem, msg)
 
     wait_until_not_loading(world.browser, wait=False)
 
@@ -1997,6 +2026,11 @@ def save_time_difference(step, counter):
 def save_time(step):
     step.need_printscreen = False
     world.last_measure = datetime.datetime.now()
+
+@step('I save value "([^"]*)" in "([^"]*)"')
+@handle_delayed_step
+def save_value_in_variable(self, value, variable):
+    world.SCENARIO_VARIABLE[variable.strip()] =  value.strip()
 
 @step('I store the values for "([^"]*)" in "([^"]*)"')
 @handle_delayed_step

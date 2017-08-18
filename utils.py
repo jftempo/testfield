@@ -758,6 +758,7 @@ class XMLRPCConnection(OERP):
             server=server_url,
             protocol='xmlrpc',
             port=server_port,
+            version='6.0',
             timeout=TIME_BEFORE_FAILURE_SYNCHRONIZATION
         )
         # Login initialization
