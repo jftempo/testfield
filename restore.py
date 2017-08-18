@@ -48,7 +48,6 @@ if __name__ == '__main__':
     environment_dir = os.path.join(ENV_DIR, env_name)
 
     dumps_to_restore = arguments[2:] if len(arguments) > 2 else []
-
     if not os.path.isdir(environment_dir):
         print "Invalid environment"
         sys.exit(1)
@@ -152,7 +151,7 @@ if __name__ == '__main__':
 
             path_dump = os.path.join(environment_dir, filename)
 
-            p1 = subprocess.Popen('pg_restore -p %d %s -U %s --no-acl --no-owner -d %s %s' % (c.DB_PORT, db_address_with_flag, c.DB_USERNAME, dbname, path_dump),
+            p1 = subprocess.Popen('pg_restore -p %d %s -U %s --no-acl --no-owner -n public -d %s %s' % (c.DB_PORT, db_address_with_flag, c.DB_USERNAME, dbname, path_dump),
                                   shell=True,
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.PIPE)

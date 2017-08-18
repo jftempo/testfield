@@ -81,10 +81,12 @@ echo "date=${TEST_DATE--}" >> output/meta
 if [ $BROWSER = "firefox" ]; then
     # Check the system Firefox first
     v=`firefox --version | cut -d' ' -f 3 | sed 's/\..*$//'`
-    if [ "$v" != 20 -a "$v" != 46 ]; then
+    echo "Firefox version $v"
+    if [ "$v" != 33 ]; then
+        echo "  -> getting proper version"
         # Get the proper version of Firefox
-    	(cd $TESTFIELDDIR && ./get_firefox.sh)
-    	export PATH=$TESTFIELDDIR/firefox:$PATH
+        (cd $TESTFIELDDIR && ./get_firefox.sh 33.1.1)
+        export PATH=$TESTFIELDDIR/firefox:$PATH
     fi
 fi
 
