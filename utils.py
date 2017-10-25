@@ -450,6 +450,22 @@ def get_options_for_table(world, columns):
             if any(map(lambda x : bool(x), values)):
                 yield maintable, row_node, values
 
+def get_lines_of_maintables(world):
+
+    open_all_the_tables(world)
+
+    maintables = get_elements(world.browser, tag_name="table", class_attr="grid")
+    maintables = filter(lambda x : x.is_displayed(), maintables)
+
+    lines = []
+    for maintable in maintables:
+        lines += get_elements(maintable, tag_name="tr", class_attr="grid-row")
+        lines += get_elements(maintable, tag_name="tr", class_attr="grid-row-group")
+
+    return lines
+
+
+
 def get_table_row_from_hashes(world, keydict):
     '''
     Returns all the rows that contains the columns given in the

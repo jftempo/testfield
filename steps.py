@@ -1184,6 +1184,57 @@ def get_values(fieldname):
     else:
         return []
 
+def is_readonly(content):
+
+    classlist = content.get_attribute("class").split()
+    disabled = content.get_attribute("disabled")
+    return "readonlyfield" in classlist and disabled == "true"
+
+def is_editable(content):
+
+    classlist = content.get_attribute("class").split()
+    disabled = content.get_attribute("disabled")
+    return "readonlyfield" not in classlist and disabled != "true"
+
+
+@step('I should see "([^"]*)" as readonly')
+@handle_delayed_step
+@output.register_for_printscreen
+def should_see_as_readonly(step, fieldname):
+    return should_see_as(fieldname, "readonly")
+
+@step('I should see "([^"]*)" as editable')
+@handle_delayed_step
+@output.register_for_printscreen
+def should_see_as_editable(step, fieldname):
+    return should_see_as(fieldname, "editable")
+
+def should_see_as(fieldname, expected_status):
+
+    refresh_window(world)
+
+    wait_until_not_loading(world.browser, wait=False)
+
+    tick = monitor(world.browser)
+
+    while True:
+
+        _, content_found = get_input(world.browser, fieldname)
+        error = None
+
+        if not content_found:
+            error = "No field named %s" % fieldname
+        elif expected_status == "readonly" and not is_readonly(content_found):
+            error = "Field %s is not readonly" % fieldname
+        elif expected_status == "editable" and not is_editable(content_found):
+            error = "Field %s is not editable" % fieldname
+        if error is None:
+            break
+
+        tick(message_if_error=error)
+
+
+
 @step('I should see "([^"]*)" in "([^"]*)"')
 @handle_delayed_step
 @output.register_for_printscreen
@@ -1570,6 +1621,42 @@ def click_on_line(step, action, window_will_exist=True):
             #  (we would do the action twice)
             wait_until_not_loading(world.browser, wait=False)
             wait_until_no_ajax(world)
+
+
+@step('I click on first line')
+@handle_delayed_step
+@output.add_printscreen
+def click_on_first_line(step):
+    refresh_window(world)
+    wait_until_not_loading(world.browser, wait=False)
+    lines = get_lines_of_maintables(world)
+    if lines == []:
+        raise UniFieldElementException("I did not find any line !")
+    lines[0].click()
+
+
+@step('I click on first line and close the window')
+@handle_delayed_step
+@output.add_printscreen
+def click_on_first_line_and_close_the_window(step):
+
+    click_on_first_line(step)
+
+    world.nbframes -= 1
+
+    world.browser.switch_to.default_content()
+
+    wait_until_no_ajax(world)
+
+    wait_until_element_does_not_exist(world.browser, lambda : get_element(world.browser, tag_name="iframe", position=world.nbframes))
+
+    if world.nbframes > 0:
+        world.browser.switch_to_frame(get_element(world.browser, position=world.nbframes-1, tag_name="iframe", wait="I don't find the previous window"))
+
+    wait_until_no_ajax(world)
+    wait_until_not_loading(world.browser, wait=world.nbframes == 0)
+
+
 
 @step('I click on line:')
 @handle_delayed_step
