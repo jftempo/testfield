@@ -15,6 +15,7 @@ import os
 import os.path
 import re
 import tempfile
+import random
 
 RESULTS_DIR = 'results/'
 ENV_DIR = 'instances/'
@@ -666,6 +667,20 @@ def internal_fill_field(fieldname, content, position=0):
 
     wait_until_no_ajax(world)
 
+@step('I fill "([^"]*)" with a random name$')
+@handle_delayed_step
+@output.register_for_printscreen
+def fill_field_random_name(step, fieldname):
+    fill_field(step, fieldname, random_name())
+
+
+@step('I fill "([^"]*)" with a random number$')
+@handle_delayed_step
+@output.register_for_printscreen
+def fill_field_random_name(step, fieldname):
+    fill_field(step, fieldname, str(random_id()))
+
+
 @step('I fill "([^"]*)" with "([^"]*)"$')
 @handle_delayed_step
 @output.register_for_printscreen
@@ -1183,6 +1198,18 @@ def get_values(fieldname):
         return map(lambda x : x.text, select.all_selected_options)
     else:
         return []
+
+
+def random_id():
+    return random.randint(10000,99999)
+
+def random_name():
+
+    sylabs = [ "ba", "bu", "zo", "ga", "to", "le", "mu", "ti", "ma", "xo"]
+    name = str(random_id())
+    name = ''.join([ sylabs[int(char)] for char in name ])
+
+    return name
 
 def is_readonly(content):
 
