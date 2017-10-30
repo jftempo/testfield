@@ -130,10 +130,9 @@ def connect_to_db():
         # caps = DesiredCapabilities.FIREFOX
         # caps["marionette"] = True
         # world.browser = webdriver.Firefox(firefox_profile=profile, capabilities=caps)
-        
         world.browser = webdriver.Firefox(firefox_profile=profile, timeout=1200)
 
-        
+
     elif os.environ['BROWSER'] == "chrome":
         world.browser = webdriver.Chrome()
         #FIXME: PhantomJS doesn't like testfield. It seems that keeps on loading pages...
@@ -159,7 +158,7 @@ def connect_to_db():
     world.durations = {}
 
     mkp = get_absolute_path("monkeypatch.js")
-    
+
     with open(mkp) as f:
         world.monkeypatch = '\r\n'.join(f.readlines())
 
@@ -214,7 +213,7 @@ def fail_if_background(step):
 
 @before.each_step
 def apply_monkey_patch(step):
-    
+
     world.browser.execute_script(world.monkeypatch)
 
 @after.each_scenario
@@ -879,7 +878,7 @@ def click_until_not_available2(step, button):
     ct = int(os.environ.get('COUNT', 2))
     if ct < 5:
         raise RuntimeError("\"I click until not available\" requires a count >= 5")
-    
+
     refresh_window(world)
     wait_until_not_loading(world.browser, wait=world.nbframes == 0)
 
@@ -995,13 +994,13 @@ def close_window_if_necessary(step, button):
 @output.add_printscreen
 def click_on_button(step, button):
     refresh_window(world)
-    
+
     '''
     elem = WebDriverWait(world.browser, 10).until(
         expected_conditions.presence_of_element_located( world.browser.find_elements_by_css_selector("div#ajax_loading") )
     )
     '''
-    
+
     # It seems that some action could still be launched when clicking on a button,
     #  we have to wait on them for completion
     # But we cannot do that for frames because the "loading" menu item doesn't exist
@@ -1049,7 +1048,7 @@ def click_on_button_and_open(step, button):
     world.browser.switch_to.default_content()
     world.browser.switch_to_frame(get_element(world.browser, position=world.nbframes, tag_name="iframe", wait="I don't find the new window"))
     world.nbframes += 1
-    
+
     wait_until_no_ajax(world)
 
 @step('I click on button_id "([^"]*)" and open the window$')
@@ -1071,7 +1070,7 @@ def click_on_button_id_and_open(step, button):
     world.browser.switch_to.default_content()
     world.browser.switch_to_frame(get_element(world.browser, position=world.nbframes, tag_name="iframe", wait="I don't find the new window"))
     world.nbframes += 1
-    
+
     wait_until_no_ajax(world)
 
 @step('I close the window$')
@@ -1105,63 +1104,63 @@ def click_on_button_and_close(step, button):
     world.nbframes -= 1
 
     world.browser.switch_to.default_content()
-    
+
     if world.nbframes > 0:
         world.browser.switch_to_frame(get_element(world.browser, position=world.nbframes-1, tag_name="iframe", wait="I don't find the previous window"))
     else:
         #wait_until_element_does_not_exist(world.browser, lambda : get_element(world.browser, tag_name="iframe", position=world.nbframes))
         wait_until_element_does_not_exist(world.browser, lambda : get_element(world.browser, tag_name="div", class_attr="ui-dialog", position=world.nbframes))
-    
+
     #wait_until_not_loading(world.browser)
     wait_until_no_ajax(world)
     '''
-    
+
     refresh_nbframes(world)
     refresh_window(world)
-    
+
     msg = "Cannot find the button to close the window"
     button_element = get_element_from_text(world.browser, tag_name=["button", "a"], text=button, wait=msg)
     click_on(world, lambda : button_element, msg)
-    
+
     world.browser.switch_to.default_content()
-    
+
     try:
         wait_until_element_does_not_exist(world.browser, lambda : get_element(world.browser, tag_name="iframe", position=world.nbframes-1))
     except (TimeoutException) as e:
         # in case of TimeoutException, let's try one another time by executing Js code directly
         if button == 'Save & source':
-            
+
             elems = world.browser.find_elements_by_css_selector("button#save_source_lines")
-            
+
             print "Nb buttons = " + str(len(elems))
-            
+
             if len(elems) == 1:
                 print elems[0].get_attribute("outerHTML")
-                        
+
             print "---> Let's try JS method"
             world.browser.execute_script("buttonClicked('save_source_lines', 'object', 'multiple.sourcing.wizard', '', getNodeAttribute(this, 'confirm'), '', getNodeAttribute(this, 'context'));")
-            
+
             wait_until_element_does_not_exist(world.browser, lambda : get_element(world.browser, tag_name="iframe", position=world.nbframes-1))
-        
+
     refresh_nbframes(world)
     refresh_window(world)
-    
+
     wait_until_not_loading(world.browser, wait=False)
-        
+
 
 def toggle_button_to(btn_name, check):
-    
+
     btn_name = to_camel_case(btn_name)
     msg = "Cannot find toggle button %s" % btn_name
-    
+
     btn_toggle = get_element_from_text(world.browser, tag_name="button", text=btn_name, wait=msg)
-    
-    #Check only with the word "inactive" in the button class name because "active" is included in "inactive" 
+
+    #Check only with the word "inactive" in the button class name because "active" is included in "inactive"
     if check == "active" and "inactive" in btn_toggle.get_attribute("class"):
         click_on(world, lambda : btn_toggle, msg)
     elif check == "inactive" and "inactive" not in btn_toggle.get_attribute("class"):
         click_on(world, lambda : btn_toggle, msg)
-        
+
     wait_until_not_loading(world.browser)
     wait_until_no_ajax(world)
 
@@ -1182,7 +1181,7 @@ def toggle_off(step, button):
 # Check messages (error, warning, ...) {%{
 
 def get_values(fieldname):
-    
+
     _, txtinput = get_input(world.browser, fieldname)
 
     # if it's a text that is not changable
@@ -1276,7 +1275,7 @@ def should_see(step, content, fieldname):
     tick = monitor(world.browser)
 
     while True:
-        
+
         content_found = get_values(fieldname)
         error = None
 
@@ -1355,10 +1354,10 @@ def see_popup(step, message_to_see):
                 # we cannot click on OK because the button might be hidden by another window
                 # We are going to try to close the popup by the good way
                 world.browser.execute_script('$("a#fancybox-close").click();')
-                
+
                 # If the popup is not closed, we try the bad way
                 world.browser.execute_script('if($("div#fancybox-wrap").is(":visible")){$("div#fancybox-overlay, div#fancybox-wrap").hide();}')
-                
+
 
                 wait_until_element_does_not_exist(world.browser, lambda : get_element(world.browser, tag_name="td", class_attr="error_message_content"))
 
@@ -1378,16 +1377,16 @@ def see_popup(step, message_to_see):
 @handle_delayed_step
 @output.register_for_printscreen
 def see_window(step, message_to_see):
-       
+
     tick = monitor(world.browser, "I don't find any window")
 
     # Variables initialization
     message_found = False
     reg = create_regex(message_to_see)
-    
+
     # We're going to check in browser and iFrames
     for noframe in xrange(world.nbframes+1):
-        
+
         # Check in browser
         if noframe == 0:
             world.browser.switch_to.default_content()
@@ -1395,26 +1394,26 @@ def see_window(step, message_to_see):
         else:
             frame = get_element(world.browser, tag_name="iframe", position=noframe-1, wait="I don't find a window")
             world.browser.switch_to_frame(frame)
-    
+
         # We are looking for all textarea in the window
         elements = world.browser.find_elements_by_css_selector("form#view_form table.fields textarea")
-        
-        # If at least one element has been found 
+
+        # If at least one element has been found
         if elements:
-            
+
             for element in elements:
-    
+
                 # Compare element text en text we are looking for
                 if re.match(reg, element.text, flags=re.DOTALL) is None:
                     continue
                 else:
                     message_found = True
                     break
-        
+
     # Not found, raise an error
     if not message_found:
         raise UniFieldElementException("No '%s' found" % (message_to_see))
-    
+
     # Close the window
     step.given('I close the window')
 
@@ -1487,7 +1486,7 @@ def get_pos_for_fieldname_4_editon(fieldname):
 
     if right_pos is None:
         raise UniFieldElementException("Cannot find column '%s'" % fieldname)
-    
+
     return table_found, right_pos
 
 def check_checkbox_action(content, fieldname, action=None):
@@ -1802,7 +1801,7 @@ def check_not_click_on_line(step, action):
         elements = get_elements_from_text(world.browser, tag_name=["button", "a"], text=action, wait=None)
         # we have to ensure that the button is clickable. Otherwise it means that the steps
         #  is "done"
-        
+
         # we sometimes fetch node nested in the button or a area. We have to fetch the parent
         real_elements = []
         for element in elements:
@@ -1999,7 +1998,7 @@ def open_side_panel_and_open_popup(step, menuname):
 def i_debug(step):
     import pdb
     pdb.set_trace()
-    
+
 @step('I validate the line')
 @handle_delayed_step
 @output.register_for_printscreen
@@ -2051,7 +2050,7 @@ def get_input_for_language_field(language, field):
             descriptions_found.append(field_row)
     else:
         raise UnifieldException("Unable to find the given description %s among %s" % (field, ', '.join(descriptions_found)))
-    
+
     return ret
 
 @step('I set "([^"]*)" for language "([^"]*)" and field "([^"]*)"')

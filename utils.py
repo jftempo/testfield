@@ -101,11 +101,11 @@ def monitor(browser, explanation=''):
 
         now = datetime.datetime.now()
         time_spent_waiting = timedelta_total_seconds(now - here['start_datetime'])
-        
+
         TIME_BEFORE_FAILURE = get_TIME_BEFORE_FAILURE()
 
         timeout_detected = TIME_BEFORE_FAILURE is not None and time_spent_waiting > (TIME_BEFORE_FAILURE * factor)
-        
+
         if here['val'] > LIMIT_COUNTER or timeout_detected:
             browser = here['browser']
 
@@ -153,17 +153,17 @@ def get_input(browser, fieldname, position=0):
             #  follow each other
             label = labels[position]
             idattr = label.get_attribute("for")
-            
+
             #Sometimes, when the for attribute ends with a _text, we need to do some tests
             if idattr.endswith("_text"):
                 #First, check if at least one element exists with _text
                 my_elements = get_elements(browser, tag_name="input", id_attr=idattr.replace('/', '\\/'))
-            
+
                 #If not, we continue without the _text
                 if len(my_elements) == 0:
                     if idattr.endswith("_text"):
                         idattr = idattr[:-5]
-                        
+
             my_input = get_element(browser, id_attr=idattr.replace('/', '\\/'), wait=True)
             break
 
@@ -179,14 +179,14 @@ def get_input(browser, fieldname, position=0):
         table_header = table_header[0]
 
         table_node = table_header.find_elements_by_xpath("ancestor::tr[1]")
-        
+
         if not table_node:
             tick()
             time.sleep(TIME_TO_SLEEP)
             continue
 
         element = table_node[0].find_elements_by_xpath("following-sibling::*[1]")
-        
+
         if not element:
             tick()
             time.sleep(TIME_TO_SLEEP)
@@ -199,7 +199,7 @@ def get_input(browser, fieldname, position=0):
                 break
 
         inputnodes = get_elements(element[0], tag_name="p", class_attr="raw-text")
-        
+
         if inputnodes:
             tick()
             my_input = inputnodes[0]
@@ -689,7 +689,7 @@ def refresh_window(world):
 
     if world.nbframes != 0:
         world.browser.switch_to_frame(get_element(world.browser, position=world.nbframes-1, tag_name="iframe"))
-        
+
 def refresh_nbframes(world):
 
     world.browser.switch_to_default_content()
@@ -749,7 +749,7 @@ def select_in_field_an_option(world, fieldelement, content):
     action(txtinput, content)
 
     # We have to wait until the information is completed
-    wait_until_no_ajax(world)   
+    wait_until_no_ajax(world)
 
 #}%}
 
