@@ -550,10 +550,7 @@ def open_tab(step, menu_to_click_on):
     open_menu(menu_to_click_on)
 
     # we have to open the window!
-    world.browser.switch_to.default_content()
-    world.browser.switch_to_frame(get_element(world.browser, tag_name="iframe", position=world.nbframes, wait="Cannot find the window"))
-    world.nbframes += 1
-    wait_until_no_ajax(world)
+    wait_new_window(world)
 
 @step('I click on menu "([^"]*)"$')
 @handle_delayed_step
@@ -1691,6 +1688,15 @@ def click_on_line_line(step):
     refresh_window(world)
     click_on_line(step, "line")
 
+@step('I click on line and open the window:')
+@handle_delayed_step
+@output.add_printscreen
+def click_on_line_line_and_open_the_window(step):
+    refresh_window(world)
+    click_on_line(step, "line")
+    wait_new_window(world)
+
+
 @step('I set "([^"]*)" on lines filter')
 @handle_delayed_step
 def set_filter_on_line(step, value):
@@ -1745,12 +1751,7 @@ def click_on_line_and_open_the_window(step, action):
 def click_on_line_and_open_the_window(step, action):
     refresh_window(world)
     click_on_line(step, action)
-
-    world.browser.switch_to.default_content()
-    world.browser.switch_to_frame(get_element(world.browser, tag_name="iframe", position=world.nbframes, wait="I don't find the new window"))
-    world.nbframes += 1
-
-    wait_until_no_ajax(world)
+    wait_new_window(world)
 
 def check_that_line(step, should_see_lines, action=None):
     values = step.hashes
@@ -2109,10 +2110,7 @@ def open_translation_window(step, fieldname):
         tick()
 
     # we have to open the window!
-    world.browser.switch_to.default_content()
-    world.browser.switch_to_frame(get_element(world.browser, tag_name="iframe", position=world.nbframes, wait="Cannot find the window"))
-    world.nbframes += 1
-    wait_until_no_ajax(world)
+    wait_new_window(world)
 
 #}%}
 

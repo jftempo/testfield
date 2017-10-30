@@ -824,3 +824,11 @@ def synchronize_instance(instance_name):
             return
         raise
     return
+
+
+def wait_new_window(world):
+    world.browser.switch_to.default_content()
+    world.browser.switch_to_frame(get_element(world.browser, tag_name="iframe", position=world.nbframes, wait="I don't find the new window"))
+    world.nbframes += 1
+
+    wait_until_no_ajax(world)
