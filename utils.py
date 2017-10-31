@@ -10,6 +10,7 @@ import time
 import re
 import os
 import pdb
+import random
 
 # The time (in seconds) that we wait when we know that an action has still to be performed
 TIME_TO_SLEEP = 0.3
@@ -832,3 +833,32 @@ def wait_new_window(world):
     world.nbframes += 1
 
     wait_until_no_ajax(world)
+
+
+def random_id():
+    return random.randint(10000,99999)
+
+
+def random_name():
+
+    sylabs = [ "ba", "bu", "zo", "ga", "to", "le", "mu", "ti", "ma", "xo"]
+    name = str(random_id())
+    name = ''.join([ sylabs[int(char)] for char in name ])
+
+    return name
+
+
+def is_readonly(content):
+
+    classlist = content.get_attribute("class").split()
+    disabled = content.get_attribute("disabled")
+    return "readonlyfield" in classlist and disabled == "true"
+
+
+def is_editable(content):
+
+    classlist = content.get_attribute("class").split()
+    disabled = content.get_attribute("disabled")
+    return "readonlyfield" not in classlist and disabled != "true"
+
+
