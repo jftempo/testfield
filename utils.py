@@ -10,6 +10,7 @@ import time
 import re
 import os
 import pdb
+import random
 
 # The time (in seconds) that we wait when we know that an action has still to be performed
 TIME_TO_SLEEP = 0.3
@@ -101,11 +102,11 @@ def monitor(browser, explanation=''):
 
         now = datetime.datetime.now()
         time_spent_waiting = timedelta_total_seconds(now - here['start_datetime'])
-        
+
         TIME_BEFORE_FAILURE = get_TIME_BEFORE_FAILURE()
 
         timeout_detected = TIME_BEFORE_FAILURE is not None and time_spent_waiting > (TIME_BEFORE_FAILURE * factor)
-        
+
         if here['val'] > LIMIT_COUNTER or timeout_detected:
             browser = here['browser']
 
@@ -153,17 +154,17 @@ def get_input(browser, fieldname, position=0):
             #  follow each other
             label = labels[position]
             idattr = label.get_attribute("for")
-            
+
             #Sometimes, when the for attribute ends with a _text, we need to do some tests
             if idattr.endswith("_text"):
                 #First, check if at least one element exists with _text
                 my_elements = get_elements(browser, tag_name="input", id_attr=idattr.replace('/', '\\/'))
-            
+
                 #If not, we continue without the _text
                 if len(my_elements) == 0:
                     if idattr.endswith("_text"):
                         idattr = idattr[:-5]
-                        
+
             my_input = get_element(browser, id_attr=idattr.replace('/', '\\/'), wait=True)
             break
 
@@ -179,14 +180,14 @@ def get_input(browser, fieldname, position=0):
         table_header = table_header[0]
 
         table_node = table_header.find_elements_by_xpath("ancestor::tr[1]")
-        
+
         if not table_node:
             tick()
             time.sleep(TIME_TO_SLEEP)
             continue
 
         element = table_node[0].find_elements_by_xpath("following-sibling::*[1]")
-        
+
         if not element:
             tick()
             time.sleep(TIME_TO_SLEEP)
@@ -199,7 +200,7 @@ def get_input(browser, fieldname, position=0):
                 break
 
         inputnodes = get_elements(element[0], tag_name="p", class_attr="raw-text")
-        
+
         if inputnodes:
             tick()
             my_input = inputnodes[0]
@@ -450,6 +451,22 @@ def get_options_for_table(world, columns):
             if any(map(lambda x : bool(x), values)):
                 yield maintable, row_node, values
 
+def get_lines_of_maintables(world):
+
+    open_all_the_tables(world)
+
+    maintables = get_elements(world.browser, tag_name="table", class_attr="grid")
+    maintables = filter(lambda x : x.is_displayed(), maintables)
+
+    lines = []
+    for maintable in maintables:
+        lines += get_elements(maintable, tag_name="tr", class_attr="grid-row")
+        lines += get_elements(maintable, tag_name="tr", class_attr="grid-row-group")
+
+    return lines
+
+
+
 def get_table_row_from_hashes(world, keydict):
     '''
     Returns all the rows that contains the columns given in the
@@ -673,7 +690,7 @@ def refresh_window(world):
 
     if world.nbframes != 0:
         world.browser.switch_to_frame(get_element(world.browser, position=world.nbframes-1, tag_name="iframe"))
-        
+
 def refresh_nbframes(world):
 
     world.browser.switch_to_default_content()
@@ -733,7 +750,7 @@ def select_in_field_an_option(world, fieldelement, content):
     action(txtinput, content)
 
     # We have to wait until the information is completed
-    wait_until_no_ajax(world)   
+    wait_until_no_ajax(world)
 
 #}%}
 
@@ -808,3 +825,40 @@ def synchronize_instance(instance_name):
             return
         raise
     return
+
+
+def wait_new_window(world):
+    world.browser.switch_to.default_content()
+    world.browser.switch_to_frame(get_element(world.browser, tag_name="iframe", position=world.nbframes, wait="I don't find the new window"))
+    world.nbframes += 1
+
+    wait_until_no_ajax(world)
+
+
+def random_id():
+    return random.randint(10000,99999)
+
+
+def random_name():
+
+    sylabs = [ "ba", "bu", "zo", "ga", "to", "le", "mu", "ti", "ma", "xo"]
+    name = str(random_id())
+    name = ''.join([ sylabs[int(char)] for char in name ])
+
+    return name
+
+
+def is_readonly(content):
+
+    classlist = content.get_attribute("class").split()
+    disabled = content.get_attribute("disabled")
+    return "readonlyfield" in classlist and disabled == "true"
+
+
+def is_editable(content):
+
+    classlist = content.get_attribute("class").split()
+    disabled = content.get_attribute("disabled")
+    return "readonlyfield" not in classlist and disabled != "true"
+
+
