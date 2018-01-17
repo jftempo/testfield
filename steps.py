@@ -15,6 +15,8 @@ import os
 import os.path
 import re
 import tempfile
+import credentials
+
 
 RESULTS_DIR = 'results/'
 ENV_DIR = 'instances/'
@@ -190,6 +192,14 @@ def do_not_crash(background):
 @before.each_feature
 def init_id_feature(feature):
     world.idfeature = get_new_id(RUN_FEATURE_NUMBER_FILE)
+    from oerplib import OERP
+    oerp = OERP(server=credentials.SRV_ADDRESS, protocol='xmlrpc', port=credentials.XMLRPC_PORT, version='6.0')
+    for db in oerp.db.list():
+        if db.startswith(credentials.DB_PREFIX):
+            u = oerp.login(credentials.UNIFIELD_ADMIN, credentials.UNIFIELD_PASSWORD, db)
+            po_ids = oerp.get('purchase.order').search([('state', '=', 'draft')])
+            if po_ids:
+                oerp.get('purchase.order').write(po_ids, {'delivery_requested_date': '2030-01-01'})
 
 @after.each_background
 def cancel_background(background, results):
