@@ -41,7 +41,8 @@ def tests():
                                             path_dir=PATH_TESTS),
                 first_page=first_page,
                 last_page=last_page,
-                pages=pages)
+                pages=pages,
+                datetime=datetime)
 
 class SyntaxError(Exception):
     pass
@@ -168,7 +169,7 @@ def get_functional_tests(path_dir, offset, length):
 
             tests.append(tests_meta)
 
-    tests.sort(key=lambda x : x["date"])
+    tests.sort(key=lambda x : (x["date"], x['id']))
     tests.reverse()
 
     return tests
@@ -374,7 +375,7 @@ def test(name, filename):
     with open(path_index, 'r') as f:
         fichier = ''.join(f.readlines())
 
-    return dict(error=None, fichier=fichier)
+    return dict(error=None, fichier=fichier, title=name)
 
 @route(r'/test/<name>/<filename:re:.*(\.png|\.log)>')
 def test(name, filename):

@@ -18,4 +18,5 @@ run_feature
 run_scenario
 output
 results
-website/tests
+config.sh
+website/tests/*
