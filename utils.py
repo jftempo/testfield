@@ -270,6 +270,11 @@ def get_element(browser, tag_name=None, id_attr=None, class_attr=None, attrs=dic
 
         return only_visible[0] if only_visible else elements[0]
     else:
+        x = 0
+        while x < position:
+            if elements[x].get_attribute('colspan'):
+                position -= int(elements[x].get_attribute('colspan'))-1
+            x += 1
         return elements[position]
 
 def to_camel_case(text):
@@ -714,7 +719,7 @@ def action_write_in_element(txtinput, content):
             if txtinput.is_selected():
                 txtinput.click()
     else:
-        txtinput.clear()
+        #txtinput.clear()
         txtinput.send_keys((100*Keys.BACKSPACE) + content + Keys.TAB)
 
 def action_select_option(txtinput, content):
@@ -727,11 +732,9 @@ def select_in_field_an_option(world, fieldelement, content):
     '''
     Find a field according to its label
     '''
-
     field, action = fieldelement()
     txtinput, _ = fieldelement()
     action(txtinput, content)
-
     # We have to wait until the information is completed
     wait_until_no_ajax(world)   
 
