@@ -263,7 +263,7 @@ def get_elements(browser, tag_name=None, id_attr=None, class_attr=None, attrs=di
 
     return elements
 
-def get_element(browser, tag_name=None, id_attr=None, class_attr=None, attrs=dict(), wait='', position=None):
+def get_element(browser, tag_name=None, id_attr=None, class_attr=None, attrs=dict(), wait='', position=None, check_colspan=False):
     elements = get_elements(browser, tag_name, id_attr, class_attr, attrs, wait, atleast=position or 0)
 
     if position is None:
@@ -271,11 +271,12 @@ def get_element(browser, tag_name=None, id_attr=None, class_attr=None, attrs=dic
 
         return only_visible[0] if only_visible else elements[0]
     else:
-        x = 0
-        while x < position:
-            if elements[x].get_attribute('colspan'):
-                position -= int(elements[x].get_attribute('colspan'))-1
-            x += 1
+        if check_colspan:
+            x = 0
+            while x < position:
+                if elements[x].get_attribute('colspan'):
+                    position -= int(elements[x].get_attribute('colspan'))-1
+                x += 1
         return elements[position]
 
 def to_camel_case(text):
@@ -421,7 +422,6 @@ def get_options_for_table(world, columns):
     Return all the rows that have been found in one of the table
      with, at least, the given column in the table.
     '''
-
     open_all_the_tables(world)
 
     maintables = get_elements(world.browser, tag_name="table", class_attr="grid")
@@ -479,16 +479,15 @@ def get_table_row_from_hashes(world, keydict):
     '''
     #TODO: Check that all the lines are in the same table... although it might be considered as a feature
     columns = list(keydict.keys())
-
     for maintable, row_node, values in get_options_for_table(world, columns):
         everything_matches = True
-
         for column_name, value in zip(columns, values):
             valreg = convert_input(world, keydict[column_name])
             reg = create_regex(valreg)
 
             if re.match(reg, value, flags=re.DOTALL) is None:
                 everything_matches = False
+                break
 
         if everything_matches:
             yield maintable, row_node

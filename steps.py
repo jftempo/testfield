@@ -1517,7 +1517,7 @@ def check_checkbox_action(content, fieldname, action=None):
     def get_text_box():
         row_in_edit_mode = get_element(table_found, tag_name="tr", class_attr="editors", wait="I don't find any line to edit")
 
-        td_node = get_element(row_in_edit_mode, class_attr="grid-cell", tag_name="td", position=right_pos)
+        td_node = get_element(row_in_edit_mode, class_attr="grid-cell", tag_name="td", position=right_pos, check_colspan=True)
 
         # do we a select at our disposal?
         a_select = get_elements(td_node, tag_name="select")
@@ -1832,7 +1832,6 @@ def check_that_line(step, should_see_lines, action=None):
 
         for hashes in values:
             lines = list(get_table_row_from_hashes(world, hashes))
-
             # do we have to filter the rows with the right action?
             if action is not None:
                 lines = filter(lambda (_, row) : get_action_element_in_line(row, action), lines)
