@@ -2290,4 +2290,3 @@ def save_time_results(step, counters, filename):
 @output.register_for_printscreen
 def print_comment(step):
     pass
-    return synchronize_instance(convert_input(world, instance_name))
