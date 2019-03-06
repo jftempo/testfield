@@ -2286,7 +2286,7 @@ def save_time_results(step, counters, filename):
 
 #}%}
 
-@step('\s*-')
+@step('^\s*-')
 @output.register_for_printscreen
 def print_comment(step):
     pass
