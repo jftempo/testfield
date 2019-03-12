@@ -509,7 +509,7 @@ def open_menu(menu_to_click_on):
 
     menu_node = get_element(world.browser, tag_name="td", id_attr="secondary")
 
-    menus = menu_to_click_on.split("|")
+    menus = menu_to_click_on.lower().split("|")
 
     after_pos = 0
     i = 0
@@ -527,7 +527,7 @@ def open_menu(menu_to_click_on):
         visible_elements = filter(lambda x : x.is_displayed(), elements)
         valid_visible_elements = visible_elements[after_pos:]
 
-        text_in_menus = map(lambda x : x.text, valid_visible_elements)
+        text_in_menus = map(lambda x : x.text.lower(), valid_visible_elements)
 
         if menu in text_in_menus:
             pos = text_in_menus.index(menu)
